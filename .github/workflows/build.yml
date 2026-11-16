@@ -34,8 +34,16 @@ jobs:
 
       - name: Install NDK and CMake
         run: |
-          SDKMANAGER=$(find "${ANDROID_HOME:-/usr/local/lib/android/sdk}/cmdline-tools" -maxdepth 2 -name sdkmanager -type f | sort -V | tail -1)
+          echo "ANDROID_HOME=$ANDROID_HOME ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          SDKMANAGER=$(find "${ANDROID_HOME:-/usr/local/lib/android/sdk}" -maxdepth 4 -name sdkmanager -type f 2>/dev/null | sort -V | tail -1)
+          if [ -z "$SDKMANAGER" ]; then
+            SDKMANAGER=$(find / -maxdepth 8 -name sdkmanager -type f 2>/dev/null | sort -V | tail -1)
+          fi
           echo "Using sdkmanager at: $SDKMANAGER"
+          if [ -z "$SDKMANAGER" ]; then
+            echo "::error::sdkmanager not found anywhere on this runner"
+            exit 1
+          fi
           yes | "$SDKMANAGER" --licenses > /dev/null || true
           "$SDKMANAGER" "platforms;android-36" "build-tools;36.0.0" "ndk;27.2.12479018" "cmake;3.22.1"
           echo "$(dirname "$SDKMANAGER")" >> "$GITHUB_PATH"
