@@ -152,6 +152,9 @@ android {
 
         multiDexEnabled true
 
+        buildConfigField "int", "TG_API_ID", (System.getenv("TG_API_ID") ?: "4")
+        buildConfigField "String", "TG_API_HASH", "\"" + (System.getenv("TG_API_HASH") ?: "014b35b6184100b085b0d0572f9b5103") + "\""
+
         externalNativeBuild {
             cmake {
                 version '3.22.1'
